@@ -11,16 +11,12 @@ public class AppleGrid : MonoBehaviour
     private short[] gridIB;
     private short[] wireAppleIB;
     float time = 0;
-    // When added to an object, draws colored rays from the
-    // transform position.
-    public int lineCount = 100;
-    public float radius = 3.0f;
     public void Start()
     {
         initVertexArray();
         initIndexArrayForAppear();
         initIndexArrayForApple();
-    } 
+    }
     public void initVertexArray()
     {
         VBcopy = new Vector3[2 * nSegments + 1];
@@ -66,19 +62,18 @@ public class AppleGrid : MonoBehaviour
             yCoord = param0_1 * y + param1_0 * -rApple;
 
             Coords[j].x = xCoord;
-            Coords[j].z = yCoord;
-            Coords[j].y = 0;
+            Coords[j].y = yCoord;
+            Coords[j].z = 0;
 
             if (i == 0)
                 continue;
             Coords[k].x = cosAlpha * xCoord;
-            Coords[k].z = yCoord;
-            Coords[k].y = -sinAlpha * xCoord;
+            Coords[k].y = yCoord;
+            Coords[k].z = -sinAlpha * xCoord;
         }
         VB = Coords;
     }
-
-
+    
     public void FindVertexCoordsForAppear(float param0_1, float param1_0)
     {
         Vector3[] Coords = new Vector3[2 * nSegments + 1];
@@ -90,14 +85,14 @@ public class AppleGrid : MonoBehaviour
             sinAlpha = (float)Mathf.Sin(i * phy);
             length = param0_1 * len / nSegments;
             Coords[2 * i].x = cosAlpha * i * length;
-            Coords[2 * i].z = -rApple;
-            Coords[2 * i].y = sinAlpha * i * length;
+            Coords[2 * i].y = 0;
+            Coords[2 * i].z = sinAlpha * i * length;
 
             if (i == nSegments)
                 break;
             Coords[2 * i + 1].x = cosAlpha * (i + 1) * length;
-            Coords[2 * i + 1].z = -rApple;
-            Coords[2 * i + 1].y = sinAlpha * (i + 1) * length;
+            Coords[2 * i + 1].y = 0;
+            Coords[2 * i + 1].z = sinAlpha * (i + 1) * length;
         }
         VB = Coords;
     }
@@ -129,14 +124,14 @@ public class AppleGrid : MonoBehaviour
         float cx = x, cy = y, cz = z;
         x = cx;
         y = Mathf.Cos(angle) * cy - Mathf.Sin(angle) * cz;
-        y = Mathf.Sin(angle) * cy + Mathf.Cos(angle) * cz;
+        z = Mathf.Sin(angle) * cy + Mathf.Cos(angle) * cz;
     }
     void rotateY(ref float x, ref float y, ref float z, float angle)
     {
         float cx = x, cy = y, cz = z;
         x = Mathf.Cos(angle) * cx + Mathf.Sin(angle) * cz;
         y = cy;
-        y = -Mathf.Sin(angle) * cx + Mathf.Cos(angle) * cz;
+        z = -Mathf.Sin(angle) * cx + Mathf.Cos(angle) * cz;
     }
 
     void rotateZ(ref float x, ref float y, ref float z, float angle)
@@ -144,7 +139,7 @@ public class AppleGrid : MonoBehaviour
         float cx = x, cy = y, cz = z;
         x = Mathf.Cos(angle) * cx - Mathf.Sin(angle) * cy;
         y = Mathf.Sin(angle) * cx + Mathf.Cos(angle) * cy;
-        y = cz;
+        z = cz;
     }
 
     void RotateXVec(ref Vector3[] VV, float angle)
@@ -203,24 +198,17 @@ public class AppleGrid : MonoBehaviour
             rotateAroundPoint(ref VB, new Vector3(0, 180, 0));
 
             CreateLineMaterial();
-            // Apply the line material
             lineMaterial.SetPass(0);
 
             GL.PushMatrix();
-            // Set transformation matrix for drawing to
-            // match our transform
             GL.MultMatrix(transform.localToWorldMatrix);
-
-            // Draw lines
+            
             GL.Begin(GL.LINES);
 
             for (int i = 0; i < gridIB.Length; i += 2)
             {
-                // Vertex colors change from red to green
-                GL.Color(new Color(0, 1, 0, 0.8F));
-                // One vertex at transform position
+                GL.Color(new Color(40f / 255, 180f / 255, 10f / 255, 0.8F));
                 GL.Vertex3(VB[gridIB[i]].x, VB[gridIB[i]].y, VB[gridIB[i]].z);
-                // Another vertex at edge of circle
                 GL.Vertex3(VB[gridIB[i + 1]].x, VB[gridIB[i + 1]].y, VB[gridIB[i + 1]].z);
             }
             for (int j = 0; j < nSections; ++j)
@@ -229,17 +217,15 @@ public class AppleGrid : MonoBehaviour
                 //RotateZVec(ref VB, param0_1 * 2.0f * Mathf.PI / nSections);
                 for (int i = 0; i < gridIB.Length; i += 2)
                 {
-                    // Vertex colors change from red to green
-                    GL.Color(new Color(0, 1, 0, 0.8F));
-                    // One vertex at transform position
+                    GL.Color(new Color(40f / 255, 180f / 255, 10f / 255, 0.8F));
                     GL.Vertex3(VB[gridIB[i]].x, VB[gridIB[i]].y, VB[gridIB[i]].z);
-                    // Another vertex at edge of circle
                     GL.Vertex3(VB[gridIB[i + 1]].x, VB[gridIB[i + 1]].y, VB[gridIB[i + 1]].z);
                 }
             }
             GL.End();
             GL.PopMatrix();
-        } else if (time < 18f * 0.6)
+        }
+        else if (time < 18f * 0.6)
         {
             float T = (float)(time - 18f * 0.3f) / (18f * 0.3f);
             float param1_0 = ((float)Mathf.Cos(T * Mathf.PI) + 1) / 2.0f;
@@ -250,16 +236,17 @@ public class AppleGrid : MonoBehaviour
 
             //RotateXVec(ref VB, Mathf.PI / 2 * param1_0);
             //rotateAroundPoint(ref VB, new Vector3(90.0f * param1_0, 0, 0));
+            for (int i = VB.Length - 1; i >= 0; --i)
+            {
+                VB[i].y -= VB[0].y;
+            }
             RotateXVec(ref VB, Mathf.PI / 2);
             rotateAroundPoint(ref VB, new Vector3(0, 180, 0));
 
             CreateLineMaterial();
-            // Apply the line material
             lineMaterial.SetPass(0);
 
             GL.PushMatrix();
-            // Set transformation matrix for drawing to
-            // match our transform
             GL.MultMatrix(transform.localToWorldMatrix);
 
             // Draw lines
@@ -267,28 +254,24 @@ public class AppleGrid : MonoBehaviour
 
             for (int i = 0; i < wireAppleIB.Length; i += 2)
             {
-                // Vertex colors change from red to green
                 VB.CopyTo(VBcopy, 0);
-                rotateAroundPoint(ref VBcopy, new Vector3(T * 90, 0, 0));
-                GL.Color(new Color(0, 1, 0, 0.8F));
-                // One vertex at transform position
+                //rotateAroundPoint(ref VBcopy, new Vector3(T * 90, 0, 0));
+                RotateXVec(ref VBcopy, T * Mathf.PI / 2);
+                GL.Color(new Color(40f / 255, 180f / 255, 10f / 255, 0.8F));
                 GL.Vertex3(VBcopy[wireAppleIB[i]].x, VBcopy[wireAppleIB[i]].y, VBcopy[wireAppleIB[i]].z);
-                // Another vertex at edge of circle
                 GL.Vertex3(VBcopy[wireAppleIB[i + 1]].x, VBcopy[wireAppleIB[i + 1]].y, VBcopy[wireAppleIB[i + 1]].z);
             }
             for (int j = 0; j < nSections; ++j)
             {
                 rotateAroundPoint(ref VB, new Vector3(0, 0, 360.0f / nSections));
                 VB.CopyTo(VBcopy, 0);
-                rotateAroundPoint(ref VBcopy, new Vector3(T * 90, 0, 0));
+                //rotateAroundPoint(ref VBcopy, new Vector3(T * 90, 0, 0));
+                RotateXVec(ref VBcopy, T * Mathf.PI / 2);
                 //RotateZVec(ref VB, param0_1 * 2.0f * Mathf.PI / nSections);
                 for (int i = 0; i < wireAppleIB.Length; i += 2)
                 {
-                    // Vertex colors change from red to green
-                    GL.Color(new Color(0, 1, 0, 0.8F));
-                    // One vertex at transform position
+                    GL.Color(new Color(40f / 255, 180f / 255, 10f / 255, 0.8F));
                     GL.Vertex3(VBcopy[wireAppleIB[i]].x, VBcopy[wireAppleIB[i]].y, VBcopy[wireAppleIB[i]].z);
-                    // Another vertex at edge of circle
                     GL.Vertex3(VBcopy[wireAppleIB[i + 1]].x, VBcopy[wireAppleIB[i + 1]].y, VBcopy[wireAppleIB[i + 1]].z);
                 }
             }
