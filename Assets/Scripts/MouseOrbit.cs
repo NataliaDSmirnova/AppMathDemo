@@ -26,7 +26,7 @@ public class MouseOrbit : MonoBehaviour
     public readonly float DistanceMax = 15f;
 
     private Transform target;
-    private float distance = 2f;
+    private float distance = 10f;
 
     private const float DeltaPosition = 0.02f;
     private const float DeltaGetAxis = 5f;
