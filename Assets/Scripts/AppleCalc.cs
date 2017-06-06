@@ -1,29 +1,34 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class AppleCalc : MonoBehaviour {
-	private int nSections = 96; // количество долек (должно быть кратно 2 * sectionRatio)
-	private static int sectionRatio = 4; // количество долек в проволочной модели будет nSections/sectionRatio
-	private int nSegments = 60; // количество сегментов в линии (должно быть кратно 3)
-	private static int segmentRatio = 4; // количество сегментов в проволочной модели будет nSegments/segmentRatio
-	private float rApple = 0.25f; //параметр яблока
+	public int nSections = 96; // количество долек (должно быть кратно 2 * sectionRatio)
+	public static int sectionRatio = 4; // количество долек в проволочной модели будет nSections/sectionRatio
+	public int nSegments = 60; // количество сегментов в линии (должно быть кратно 3)
+	public static int segmentRatio = 4; // количество сегментов в проволочной модели будет nSegments/segmentRatio
+	public float rApple = 0.25f; //параметр яблока
+	public double solidWFRatio = 0.5;
 
-	public float[] bottomHalfVB;
-	public float[] bottomHalfNB;
-	public int[] bottomHalfIB;
-	public float[] topHalfVB;
-	public float[] topHalfNB;
-	public int[] topHalfIB;
+	private float[] bottomHalfVB;
+	private float[] bottomHalfNB;
+	private int[] bottomHalfIB;
+	private float[] topHalfVB;
+	private float[] topHalfNB;
+	private int[] topHalfIB;
 
-	public float[] bottomHalfWireFrameVB;
-	public int[] bottomHalfWireFrameIB;
-	public float[] topHalfWireFrameVB;
-	public int[] topHalfWireFrameIB;
+	private float[] bottomHalfWireFrameVB;
+	private int[] bottomHalfWireFrameIB;
+	private float[] topHalfWireFrameVB;
+	private int[] topHalfWireFrameIB;
 
 	public Vector3[] vertices;
 	public Vector3[] normals;
-	public int[] triangles;
+	public int[] trianglesSolid;
+	public int[] trianglesWF;
+	private List<int> triangles;
 
 	// Use this for initialization
 	void Start () {
@@ -172,27 +177,59 @@ public class AppleCalc : MonoBehaviour {
 		}
 
 
-		vertices = new Vector3[vertices1.Length + vertices2.Length];
-		normals = new Vector3[normals1.Length + normals2.Length];
-		triangles = new int[triangles1.Length + triangles2.Length];
+		vertices = new Vector3[2* (vertices1.Length + vertices2.Length)];
+		normals = new Vector3[2* (normals1.Length + normals2.Length)];
+		trianglesSolid = new int[triangles1.Length + triangles2.Length];
 
 		vertices1.CopyTo(vertices, 0);
 		vertices2.CopyTo(vertices, vertices1.Length);
 		normals1.CopyTo(normals, 0);
 		normals2.CopyTo(normals, normals1.Length);
-		triangles1.CopyTo(triangles, 0);
+		triangles1.CopyTo(trianglesSolid, 0);
 		for (int i = 0; i < triangles2.Length; ++i)
 		{
 			triangles2[i] += vertices1.Length;
 		}
 
-		triangles2.CopyTo(triangles, triangles1.Length);
+		triangles2.CopyTo(trianglesSolid, triangles1.Length);
+
+		normals1.CopyTo(normals, normals1.Length + normals2.Length);
+		normals2.CopyTo(normals, normals1.Length + normals2.Length + normals1.Length);
+		for (int i = 0; i < normals1.Length + normals2.Length; ++i)
+			normals [i] = -normals [i];
+		vertices1.CopyTo(vertices, vertices1.Length + vertices2.Length);
+		vertices2.CopyTo(vertices, vertices1.Length + vertices2.Length + vertices1.Length);
+
+		triangles = new List<int>();
+		triangles.AddRange(trianglesWF);
+		triangles.AddRange(trianglesSolid);
+		int threshIndex = (int)(triangles.Count * solidWFRatio);
+		threshIndex -= threshIndex % 3;
+
+		List<int> tS = triangles.GetRange (0, threshIndex);
+		List<int> tWF = triangles.GetRange (threshIndex, (triangles.Count - threshIndex));
+		tS.AddRange (tS);
+		tWF.AddRange (tWF);
+		for (int i = 0; i < tS.Count / 2; ++i) tS [i] += vertices1.Length + vertices2.Length;
+		for (int i = 0; i < tS.Count / 2; i += 3) { 
+			int tmp = tS [i + 1];
+			tS [i + 1] = tS [i + 2];
+			tS [i + 2] = tmp; 
+		}
+		for (int i = 0; i < tWF.Count / 2; ++i) tWF [i] += vertices1.Length + vertices2.Length;
+		for (int i = 0; i < tWF.Count / 2; i += 3) { 
+			int tmp = tWF [i + 1];
+			tWF [i + 1] = tWF [i + 2];
+			tWF [i + 2] = tmp; 
+		}
+		trianglesSolid = tS.ToArray();
+		trianglesWF = tWF.ToArray();
 	}
 
 
 	public void initTopHalfVB()
 	{
-		float sinAlpha = (float)Mathf.Sin(2 * Mathf.PI / nSections);
+  		float sinAlpha = (float)Mathf.Sin(2 * Mathf.PI / nSections);
 		float cosAlpha = (float)Mathf.Cos(2 * Mathf.PI / nSections);
 		float t, x, y;
 
