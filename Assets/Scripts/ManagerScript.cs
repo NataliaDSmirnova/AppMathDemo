@@ -14,7 +14,7 @@ public class ManagerScript : MonoBehaviour {
 
     void Start ()
     {
-        childTransform = transform.FindChild("Apple");
+        childTransform = transform.Find("Apple");
 	}
 	
 	void Update ()
