@@ -1,10 +1,7 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-public class AppleGrid : MonoBehaviour
+public class AppleGridAnim : MonoBehaviour
 {
-    public float phi = 0.5f;
-    public float theta = 0.25f;
-
     private int nSections = 32; // ���������� �����
     private int nSegments = 32; // ���������� ��������� � �����
     private float len = 0.92f; // ����� ����� � �����
@@ -196,53 +193,96 @@ public class AppleGrid : MonoBehaviour
 		if(time < timeS) return;
         if(time > timeF) time = timeF;
 
-        float T = 1;
-        float param1_0 = ((float)Mathf.Cos(T * Mathf.PI) + 1) / 2.0f;
-        float param0_1 = ((float)Mathf.Sin(T * Mathf.PI - Mathf.PI / 2.0f) + 1) / 2.0f;
-
-        FindVertexCoordsForApple(param0_1, param1_0);
-
-
-        //RotateXVec(ref VB, Mathf.PI / 2 * param1_0);
-        //rotateAroundPoint(ref VB, new Vector3(90.0f * param1_0, 0, 0));
-        for (int i = VB.Length - 1; i >= 0; --i)
+		float T = (float)(time - timeS) / (timeF - timeS);
+		if(T > 1) T = 1;
+		T *= 2;
+        if (T <= 1)
         {
-            VB[i].y -= VB[0].y;
-            VB[i].y += param0_1 * 2 * rApple;
-        }
-        RotateXVec(ref VB, Mathf.PI / 2);
-        rotateAroundPoint(ref VB, new Vector3(0, 180, 0));
+            float param1_0 = ((float)Mathf.Cos(T * Mathf.PI) + 1) / 2.0f;
+            float param0_1 = ((float)Mathf.Sin(T * Mathf.PI - Mathf.PI / 2.0f) + 1) / 2.0f;
 
-        CreateLineMaterial();
-        lineMaterial.SetPass(0);
+            FindVertexCoordsForAppear(1 - param1_0, 1 - param0_1);
 
-        GL.PushMatrix();
-        GL.MultMatrix(transform.localToWorldMatrix);
+            RotateXVec(ref VB, Mathf.PI / 2);
+            //rotateAroundPoint(ref VB, new Vector3(90, 0, 0));
+            rotateAroundPoint(ref VB, new Vector3(0, 180, 0));
 
-        // Draw lines
-        GL.Begin(GL.LINES);
+            CreateLineMaterial();
+            lineMaterial.SetPass(0);
 
-        for (int j = 0; j < nSections * phi; ++j)
-        {
-            rotateAroundPoint(ref VB, new Vector3(0, 0, 360.0f / nSections));
-            VB.CopyTo(VBcopy, 0);
-            //rotateAroundPoint(ref VBcopy, new Vector3(T * 90, 0, 0));
-            RotateXVec(ref VBcopy, T * Mathf.PI / 2);
-            //RotateZVec(ref VB, param0_1 * 2.0f * Mathf.PI / nSections);
-            for (int i = 0; i < wireAppleIB.Length  / 2 * theta; i += 2)
+            GL.PushMatrix();
+            GL.MultMatrix(transform.localToWorldMatrix);
+            
+            GL.Begin(GL.LINES);
+
+            for (int i = 0; i < gridIB.Length; i += 2)
             {
                 GL.Color(new Color(40f / 255, 180f / 255, 10f / 255, 0.8F));
-                GL.Vertex3(VBcopy[wireAppleIB[i]].x, VBcopy[wireAppleIB[i]].y, VBcopy[wireAppleIB[i]].z);
-                GL.Vertex3(VBcopy[wireAppleIB[i + 1]].x, VBcopy[wireAppleIB[i + 1]].y, VBcopy[wireAppleIB[i + 1]].z);
+                GL.Vertex3(VB[gridIB[i]].x, VB[gridIB[i]].y, VB[gridIB[i]].z);
+                GL.Vertex3(VB[gridIB[i + 1]].x, VB[gridIB[i + 1]].y, VB[gridIB[i + 1]].z);
             }
-            for (int i = wireAppleIB.Length  / 2; i < wireAppleIB.Length  / 2 + wireAppleIB.Length  / 2 * theta ; i += 2)
+            for (int j = 0; j < nSections; ++j)
             {
-                GL.Color(new Color(40f / 255, 180f / 255, 10f / 255, 0.8F));
-                GL.Vertex3(VBcopy[wireAppleIB[i]].x, VBcopy[wireAppleIB[i]].y, VBcopy[wireAppleIB[i]].z);
-                GL.Vertex3(VBcopy[wireAppleIB[i + 1]].x, VBcopy[wireAppleIB[i + 1]].y, VBcopy[wireAppleIB[i + 1]].z);
+                rotateAroundPoint(ref VB, new Vector3(0, 0, param0_1 * 360.0f / nSections));
+                //RotateZVec(ref VB, param0_1 * 2.0f * Mathf.PI / nSections);
+                for (int i = 0; i < gridIB.Length; i += 2)
+                {
+                    GL.Color(new Color(40f / 255, 180f / 255, 10f / 255, 0.8F));
+                    GL.Vertex3(VB[gridIB[i]].x, VB[gridIB[i]].y, VB[gridIB[i]].z);
+                    GL.Vertex3(VB[gridIB[i + 1]].x, VB[gridIB[i + 1]].y, VB[gridIB[i + 1]].z);
+                }
             }
+            GL.End();
+            GL.PopMatrix();
         }
-        GL.End();
-        GL.PopMatrix();
+        else
+        {
+			T -= 1;
+            if(T > 1) T = 1;
+
+            float param1_0 = ((float)Mathf.Cos(T * Mathf.PI) + 1) / 2.0f;
+            float param0_1 = ((float)Mathf.Sin(T * Mathf.PI - Mathf.PI / 2.0f) + 1) / 2.0f;
+
+            FindVertexCoordsForApple(param0_1, param1_0);
+
+
+            //RotateXVec(ref VB, Mathf.PI / 2 * param1_0);
+            //rotateAroundPoint(ref VB, new Vector3(90.0f * param1_0, 0, 0));
+            for (int i = VB.Length - 1; i >= 0; --i)
+            {
+                VB[i].y -= VB[0].y;
+                VB[i].y += param0_1 * 2 * rApple;
+            }
+            RotateXVec(ref VB, Mathf.PI / 2);
+            rotateAroundPoint(ref VB, new Vector3(0, 180, 0));
+
+            CreateLineMaterial();
+            lineMaterial.SetPass(0);
+
+            GL.PushMatrix();
+            GL.MultMatrix(transform.localToWorldMatrix);
+
+            // Draw lines
+            GL.Begin(GL.LINES);
+
+			for (int j = 0; j < nSections; ++j)
+			{
+				rotateAroundPoint(ref VB, new Vector3(0, 0, 360.0f / nSections));
+				VB.CopyTo(VBcopy, 0);
+				//rotateAroundPoint(ref VBcopy, new Vector3(T * 90, 0, 0));
+				RotateXVec(ref VBcopy, T * Mathf.PI / 2);
+				//RotateZVec(ref VB, param0_1 * 2.0f * Mathf.PI / nSections);
+				for (int i = 0; i < wireAppleIB.Length; i += 2)
+				{
+					GL.Color(new Color(40f / 255, 180f / 255, 10f / 255, 0.8F));
+					GL.Vertex3(VBcopy[wireAppleIB[i]].x, VBcopy[wireAppleIB[i]].y, VBcopy[wireAppleIB[i]].z);
+					GL.Vertex3(VBcopy[wireAppleIB[i + 1]].x, VBcopy[wireAppleIB[i + 1]].y, VBcopy[wireAppleIB[i + 1]].z);
+				}
+			}
+
+            GL.End();
+            GL.PopMatrix();
+        }
+
     }
 }

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class AppleSolid : MonoBehaviour
+public class AppleSolid2 : MonoBehaviour
 {
     public float phi = 0.5f;
     public float theta = 0.25f;
@@ -21,6 +21,10 @@ public class AppleSolid : MonoBehaviour
         initVertexArray();
         initIndexArrayForAppear();
         initIndexArrayForApple();
+        print(gameObject.name);
+        print(transform.parent.gameObject.name);
+        AppleScript parentApp = transform.parent.gameObject.GetComponent<AppleScript>();
+        print(parentApp.times[parentApp.timeStart[gameObject.name]]);
     }
     public void initVertexArray()
     {
@@ -83,29 +87,34 @@ public class AppleSolid : MonoBehaviour
         float sinAlpha2 = (float)Mathf.Sin(Mathf.PI / nSections);
         float cosAlpha2 = (float)Mathf.Cos(Mathf.PI / nSections);
 
-        float t = -Mathf.PI, x, y;
+        float t, x, y;
         float xCoord, yCoord;
-        
-        float tmax = (float)(param0_1 * Mathf.PI - Mathf.PI);
-        int i = 0, j = 0, k = nSegments;
-        for (; t < tmax; i++, ++j, ++k)
+        for (int i = 0, j = 0, k = nSegments; i <= nSegments; i++, ++j, ++k)
         {
+            t = (float)((float)(i) / nSegments * Mathf.PI * param0_1 - Mathf.PI);
             x = 2 * rApple * (float)Mathf.Sin(t) - rApple * (float)Mathf.Sin(2 * t);
             y = 2 * rApple * (float)Mathf.Cos(t) - rApple * (float)Mathf.Cos(2 * t);
 
-            xCoord = -x;
-            yCoord = y;
+            xCoord = -param0_1 * x + param1_0 * len / nSegments * i;
+            yCoord = param0_1 * y + param1_0 * -rApple;
 
             Coords[j].x = xCoord;
             Coords[j].y = yCoord;
             Coords[j].z = 0;
 
-            t = (float)((float)(i+1) / nSegments * Mathf.PI - Mathf.PI);
-            if (i == 0) continue;
+            if (i == 0) {
+                continue;
+			}
+
             Coords[k].x = cosAlpha * xCoord;
             Coords[k].y = yCoord;
             Coords[k].z = -sinAlpha * xCoord;
-            
+
+			// Coords_k_1 = Vector3(cosAlpha * xCoord, yCoord, -sinAlpha * xCoord);
+            // Normals[j] = Vector3.Cross(Coords[j] - Coords[j - 1], Coords[k] - Coords[j]) + Vector3.Cross(Coords[j] - Coords[j - 1], Coords[k] - Coords[j]);
+
+            // Normals[j] = Coords[j];
+            // Normals[k] = Coords[k];
             Normals[j] = normparam0_1 * Vector3.Cross(Coords[j] - Coords[j - 1], new Vector3(0, 0, 1)) + 
 						 (1 - normparam0_1) * Vector3.Cross(Coords[j] - Coords[j - 1], new Vector3(sinAlpha2, 0, sinAlpha2));
             Normals[k] = normparam0_1 * Vector3.Cross(Coords[j] - Coords[j - 1], new Vector3(sinAlpha, 0, cosAlpha)) + 
@@ -116,34 +125,7 @@ public class AppleSolid : MonoBehaviour
 	            Normals[0] = Normals[1];
 	            Normals[k - 1] = Normals[k];
 			}
-
         }
-        do {
-            x = 2 * rApple * (float)Mathf.Sin(tmax) - rApple * (float)Mathf.Sin(2 * tmax);
-            y = 2 * rApple * (float)Mathf.Cos(tmax) - rApple * (float)Mathf.Cos(2 * tmax);
-            Coords[i].x = -x;        
-            Coords[i].y = y;
-            Coords[i].z = 0;
-
-            Coords[k].x = -cosAlpha * x;
-            Coords[k].y = y;
-            Coords[k].z = sinAlpha * x;
-
-            Normals[i] = normparam0_1 * Vector3.Cross(Coords[i] - Coords[i - 1], new Vector3(0, 0, 1)) + 
-						 (1 - normparam0_1) * Vector3.Cross(Coords[i] - Coords[i - 1], new Vector3(sinAlpha2, 0, sinAlpha2));
-            Normals[k] = normparam0_1 * Vector3.Cross(Coords[i] - Coords[i - 1], new Vector3(sinAlpha, 0, cosAlpha)) + 
-						 (1 - normparam0_1) * Vector3.Cross(Coords[i] - Coords[i - 1], new Vector3(sinAlpha2, 0, sinAlpha2));
-			Normals[i].Normalize();
-			Normals[k].Normalize();
-            if (i == 1) {
-	            Normals[0] = Normals[1];
-	            Normals[k - 1] = Normals[k];
-			}
-
-            ++k;
-            ++i;
-        } while(i <= nSegments);
-        
         VB = Coords;
 		NB = Normals;
     }
@@ -257,22 +239,19 @@ public class AppleSolid : MonoBehaviour
 
     public void OnRenderObject()
     {
-        AppleScript appSc = transform.root.gameObject.GetComponent<AppleScript>();
-        float timeS = appSc.times[appSc.timeStart[gameObject.name]];
-        float timeF = appSc.times[appSc.timeEnd[gameObject.name]];
-
-        if(time == timeF) {
-            GetComponent<MeshFilter>().mesh.Clear();
-            return;
-        }
+        if(time == 18.0f * 0.9f) return;
 		time += Time.deltaTime;
-		if(time < timeS) return;
-        if(time > timeF) time = timeF;
+		if(time < 18.0f * 0.6f) return;
+        if(time > 18.0f * 0.9f) time = 18.0f * 0.9f;
 
-		float T = (float)(time - timeS) / (timeF - timeS);
+		float T = (float)(time - 18.0f * 0.6f) / (18f * 0.3f);
 		if(T > 1) T = 1;
 
-		FindVertexCoordsForApple(1.0f, 0.0f, 0.5f);
+		float param1_0 = ((float)Mathf.Cos(T * Mathf.PI) + 1) / 2.0f;
+		float param0_1 = ((float)Mathf.Sin(T * Mathf.PI - Mathf.PI / 2.0f) + 1) / 2.0f;
+		float param0_1_0 = ((float)Mathf.Sin(T * Mathf.PI)) / 1.5f;
+
+		FindVertexCoordsForApple(param0_1, param1_0);
 	
 		//RotateXVec(ref VB, Mathf.PI / 2 * param1_0);
 		//rotateAroundPoint(ref VB, new Vector3(90.0f * param1_0, 0, 0));
@@ -280,8 +259,8 @@ public class AppleSolid : MonoBehaviour
 		{
 			VB[i].y -= VB[0].y + 2 * rApple;
 		}
-		rotateAroundPoint(ref VB, new Vector3(0, 180, 0), 1);
-		rotateAroundPoint(ref NB, new Vector3(0, 180, 0), 1);
+		rotateAroundPoint(ref VB, new Vector3(0, 180, 0), param0_1_0 + 1);
+		rotateAroundPoint(ref NB, new Vector3(0, 180, 0), param0_1_0 + 1);
 
 		Vector3[] MeshVB = new Vector3[nSections * 2 * (2 * nSegments + 1)];
 		int[] MeshIB = new int[nSections * wireAppleIB.Length];

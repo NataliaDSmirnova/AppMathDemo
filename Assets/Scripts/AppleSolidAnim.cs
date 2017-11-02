@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class AppleSolid : MonoBehaviour
+public class AppleSolidAnim : MonoBehaviour
 {
     public float phi = 0.5f;
     public float theta = 0.25f;
@@ -272,7 +272,10 @@ public class AppleSolid : MonoBehaviour
 		float T = (float)(time - timeS) / (timeF - timeS);
 		if(T > 1) T = 1;
 
-		FindVertexCoordsForApple(1.0f, 0.0f, 0.5f);
+		float param1_0 = ((float)Mathf.Cos(T * Mathf.PI) + 1) / 2.0f;
+		float param0_1 = ((float)Mathf.Sin(T * Mathf.PI - Mathf.PI / 2.0f) + 1) / 2.0f;
+
+		FindVertexCoordsForApple(param0_1, param1_0);
 	
 		//RotateXVec(ref VB, Mathf.PI / 2 * param1_0);
 		//rotateAroundPoint(ref VB, new Vector3(90.0f * param1_0, 0, 0));
