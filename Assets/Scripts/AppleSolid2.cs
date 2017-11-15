@@ -239,12 +239,20 @@ public class AppleSolid2 : MonoBehaviour
 
     public void OnRenderObject()
     {
-        if(time == 18.0f * 0.9f) return;
-		time += Time.deltaTime;
-		if(time < 18.0f * 0.6f) return;
-        if(time > 18.0f * 0.9f) time = 18.0f * 0.9f;
+        AppleScript appSc = transform.root.gameObject.GetComponent<AppleScript>();
+        float dT = appSc.times[appSc.timeEnd[appSc.name]] - appSc.times[appSc.timeStart[appSc.name]];
+        float timeS = appSc.times[appSc.timeStart[appSc.name]] + appSc.times[appSc.timeStart[gameObject.name]] * dT;
+        float timeF = appSc.times[appSc.timeStart[appSc.name]] + appSc.times[appSc.timeEnd[gameObject.name]] * dT;
 
-		float T = (float)(time - 18.0f * 0.6f) / (18f * 0.3f);
+        if(time == timeF) {
+            GetComponent<MeshFilter>().mesh.Clear();
+            return;
+        }
+		time += Time.deltaTime;
+		if(time < timeS) return;
+        if(time > timeF) time = timeF;
+
+		float T = (float)(time - timeS) / (timeF - timeS);
 		if(T > 1) T = 1;
 
 		float param1_0 = ((float)Mathf.Cos(T * Mathf.PI) + 1) / 2.0f;

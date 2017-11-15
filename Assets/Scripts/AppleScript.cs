@@ -18,6 +18,18 @@ public class AppleScript : MonoBehaviour {
     // private variables
     private float currentHeight = 0.0f;
 
+    public void Awake ()
+    {
+        if(timeStart.Count == 0) {
+            MonoBehaviour[] tmp_ch_comps = GetComponentsInChildren<MonoBehaviour>();
+            for(int i = 0; i < tmp_ch_comps.Length; ++i) {
+                timeStart[tmp_ch_comps[i].name] = 2*i;
+                timeEnd[tmp_ch_comps[i].name] = 2*i+1;
+            }
+        }
+
+    }
+
     public void Rotate()
     {
         transform.RotateAround(Vector3.zero, Vector3.up, 360.0f / rotationSpeed * Time.deltaTime);
@@ -61,7 +73,6 @@ public class AppleScript : MonoBehaviour {
 
      if(appSc.timeStart.Count == 0) {
         MonoBehaviour[] tmp_ch_comps = appSc.GetComponentsInChildren<MonoBehaviour>();
-//        appSc.times =  new float[100];
         for(int i = 0; i < tmp_ch_comps.Length; ++i) {
             appSc.timeStart[tmp_ch_comps[i].name] = 2*i;
             appSc.timeEnd[tmp_ch_comps[i].name] = 2*i+1;
@@ -73,10 +84,11 @@ public class AppleScript : MonoBehaviour {
      EditorGUILayout.LabelField(ch_comps[0].name + " | from " + appSc.times[appSc.timeStart[ch_comps[0].name]] + " to " + appSc.times[appSc.timeEnd[ch_comps[0].name]]);
      EditorGUILayout.MinMaxSlider(ref appSc.times[appSc.timeStart[ch_comps[0].name]], ref  appSc.times[appSc.timeEnd[ch_comps[0].name]], 0, 100);
      EditorGUILayout.LabelField("________________________________________________________________");
-     float minT = appSc.times[appSc.timeStart[ch_comps[0].name]], maxT = appSc.times[appSc.timeEnd[ch_comps[0].name]];
+     float minT = appSc.times[appSc.timeStart[ch_comps[0].name]], dT = appSc.times[appSc.timeEnd[ch_comps[0].name]] - minT;
      for(int i = 1; i < ch_comps.Length; ++i) {
-        EditorGUILayout.LabelField(ch_comps[i].name + " | from " + appSc.times[appSc.timeStart[ch_comps[i].name]] + " to " + appSc.times[appSc.timeEnd[ch_comps[i].name]]);
-        EditorGUILayout.MinMaxSlider(ref appSc.times[appSc.timeStart[ch_comps[i].name]], ref  appSc.times[appSc.timeEnd[ch_comps[i].name]], minT, maxT);
+        EditorGUILayout.LabelField(ch_comps[i].name + " | from " + (minT + appSc.times[appSc.timeStart[ch_comps[i].name]] * dT) + 
+        " to " + (minT + appSc.times[appSc.timeEnd[ch_comps[i].name]] * dT));
+        EditorGUILayout.MinMaxSlider(ref appSc.times[appSc.timeStart[ch_comps[i].name]], ref  appSc.times[appSc.timeEnd[ch_comps[i].name]], 0, 1);
      }
  
     //  if(appSc.times.Length == 0) {

@@ -185,8 +185,9 @@ public class AppleGridAnim : MonoBehaviour
     public void OnRenderObject()
     {
         AppleScript appSc = transform.root.gameObject.GetComponent<AppleScript>();
-        float timeS = appSc.times[appSc.timeStart[gameObject.name]];
-        float timeF = appSc.times[appSc.timeEnd[gameObject.name]];
+        float dT = appSc.times[appSc.timeEnd[appSc.name]] - appSc.times[appSc.timeStart[appSc.name]];
+        float timeS = appSc.times[appSc.timeStart[appSc.name]] + appSc.times[appSc.timeStart[gameObject.name]] * dT;
+        float timeF = appSc.times[appSc.timeStart[appSc.name]] + appSc.times[appSc.timeEnd[gameObject.name]] * dT;
 
         if(time == timeF) return;
 		time += Time.deltaTime;
