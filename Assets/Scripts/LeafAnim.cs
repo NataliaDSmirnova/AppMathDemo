@@ -10,7 +10,6 @@ public class LeafAnim : MonoBehaviour {
     private float width = 0.1f; // ширина половинки листа
     private float length = 0.3f; // длина листа
     private float k = 0.5f; // коэффициент при изгибе листа
-    private static float widthRatio = (float)Mathf.Sqrt(2.0f) * 2; // нормировочный коэффициент
     private static float lenghtRatio = (float)Mathf.Sqrt(2.0f - (float)Mathf.Sqrt(3.0f)) + 0.1f; // нормировочный коэффициент
 
     public Vector3[] VB;

@@ -11,29 +11,17 @@ public class AppleGrid : MonoBehaviour
     private float rApple = 0.25f;
     private Vector3[] VB;
     private Vector3[] VBcopy;
-    private short[] gridIB;
     private short[] wireAppleIB;
     float time = 0;
     public void Start()
     {
         initVertexArray();
-        initIndexArrayForAppear();
         initIndexArrayForApple();
     }
     public void initVertexArray()
     {
         VBcopy = new Vector3[2 * nSegments + 1];
         FindVertexCoordsForApple(1.0f, 0.0f);
-    }
-    public void initIndexArrayForAppear()
-    {
-        short[] lineOrder = new short[2 * nSegments * 2];
-        for (int i = 0; i < nSegments * 2; i++)
-        {
-            lineOrder[2 * i] = (short)(i);
-            lineOrder[2 * i + 1] = (short)(i + 1);
-        }
-        gridIB = lineOrder;
     }
     public void initIndexArrayForApple()
     {

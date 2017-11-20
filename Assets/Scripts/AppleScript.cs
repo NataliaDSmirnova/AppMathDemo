@@ -14,7 +14,7 @@ public class AppleScript : MonoBehaviour {
     public Dictionary<string, int> timeStart = new Dictionary<string, int>();
     public Dictionary<string, int> timeEnd = new Dictionary<string, int>();
     public float[] times =  new float[20];
-    int blob = 4;
+
     // private variables
     private float currentHeight = 0.0f;
 
@@ -57,11 +57,8 @@ public class AppleScript : MonoBehaviour {
  [CustomEditor(typeof(AppleScript))]
  public class AppleScriptEditor : Editor
  {
-    SerializedProperty blobProp;
-
     void OnEnable () {
         // Setup the SerializedProperties.
-        blobProp = serializedObject.FindProperty ("blob");
     }
 
    public override void OnInspectorGUI()

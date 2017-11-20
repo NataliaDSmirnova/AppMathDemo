@@ -13,13 +13,11 @@ public class AppleSolid2 : MonoBehaviour
     private Vector3[] NB;
     private Vector3[] VBcopy;
     private Vector3[] NBcopy;
-    private short[] gridIB;
     private short[] wireAppleIB;
     float time = 0;
     public void Start()
     {
         initVertexArray();
-        initIndexArrayForAppear();
         initIndexArrayForApple();
         print(gameObject.name);
         print(transform.parent.gameObject.name);
@@ -34,16 +32,6 @@ public class AppleSolid2 : MonoBehaviour
         NBcopy = new Vector3[2 * nSegments + 1];
 
         FindVertexCoordsForApple(1.0f, 0.0f);
-    }
-    public void initIndexArrayForAppear()
-    {
-        short[] lineOrder = new short[2 * nSegments * 2];
-        for (int i = 0; i < nSegments * 2; i++)
-        {
-            lineOrder[2 * i] = (short)(i);
-            lineOrder[2 * i + 1] = (short)(i + 1);
-        }
-        gridIB = lineOrder;
     }
     public void initIndexArrayForApple()
     {
@@ -85,7 +73,6 @@ public class AppleSolid2 : MonoBehaviour
         float cosAlpha = (float)Mathf.Cos(2 * Mathf.PI / nSections);
 
         float sinAlpha2 = (float)Mathf.Sin(Mathf.PI / nSections);
-        float cosAlpha2 = (float)Mathf.Cos(Mathf.PI / nSections);
 
         float t, x, y;
         float xCoord, yCoord;

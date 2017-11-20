@@ -1,21 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine;
 
 public class GraftAnim : MonoBehaviour {
 	float time = 0.0f;
 
     private int nSections = 32; // количество долек (должно быть кратно 2 * sectionRatio)
     private int nSegments = 16; // количество сегментов в линии (должно быть кратно 3)
-	float lenCone = 0f;
 	float lenCurvedCone = 0.04f;
 	float rMedium = 0.01f;
 	float rTopPart = 0.08f;
 	float rShift = 0.75f;
 	float angle = Mathf.PI / 4.0f;
 
-    CurvedCone baseCone;
     CurvedCone curvedCone;
     Vector3[] MeshVB;
     Vector3[] MeshNB;
@@ -35,7 +32,6 @@ public class GraftAnim : MonoBehaviour {
     }
 
 	void Start () {
-        baseCone = new CurvedCone(nSections, nSegments, lenCone, 0.0f, rMedium, 0.0f, 0.0f);
         curvedCone = new CurvedCone(nSections, nSegments, lenCurvedCone, rMedium, rTopPart, rShift, angle);
 
         MeshVB = new Vector3[4 * nSections * (nSegments + 1) * 4];

@@ -19,8 +19,7 @@ public class MouseOrbit : MonoBehaviour
 
     public readonly float YSpeed = 120f;
 
-    public readonly float YMinLimit = -85f;
-    public readonly float YMaxLimit = 85f;
+    public readonly float YMinMaxMargin = 5f;
 
     public readonly float DistanceMin = 2f;
     public readonly float DistanceMax = 15f;
@@ -40,13 +39,13 @@ public class MouseOrbit : MonoBehaviour
 
     private void Start()
     {
+        transform.LookAt(new Vector3(0.0f, 0.0f, 0.0f));
         target = transform;
-        distance = -target.position.z;
+        distance = target.position.magnitude;
 
         var angles = transform.eulerAngles;
         xEulerAngles = angles.x;
         yEulerAngles = angles.y;
-
         lastScreenWidth = Screen.width;
         lastScreenHeight = Screen.height;
     }
@@ -64,19 +63,19 @@ public class MouseOrbit : MonoBehaviour
         else if (Math.Abs(zoom = Input.GetAxis("Mouse ScrollWheel")) > 1E-6)
         {
             //   Debug.Log("Mouse scroll wheel click.");
-            Translate();
+ //           Translate();
             SphericalMovement();
         }
     }
 
     private void SphericalMovement()
     {
-        xEulerAngles += Input.GetAxis("Mouse X") * XSpeed * distance * DeltaPosition;
-        yEulerAngles -= Input.GetAxis("Mouse Y") * YSpeed * DeltaPosition;
+        xEulerAngles -= Input.GetAxis("Mouse Y") * XSpeed * DeltaPosition;
+        yEulerAngles += Input.GetAxis("Mouse X") * YSpeed * DeltaPosition;
 
-        yEulerAngles = ClampAngle(yEulerAngles, YMinLimit, YMaxLimit);
+        yEulerAngles = ClampAngle(yEulerAngles, YMinMaxMargin);
 
-        var rotation = Quaternion.Euler(yEulerAngles, xEulerAngles, 0);
+        var rotation = Quaternion.Euler(xEulerAngles, yEulerAngles, 0.0f);
 
         distance = Mathf.Clamp(
             distance - Input.GetAxis("Mouse ScrollWheel") * DeltaGetAxis,
@@ -91,12 +90,22 @@ public class MouseOrbit : MonoBehaviour
         var position = rotation * negDistance;
 
         transform.rotation = rotation;
+        Quaternion.Inverse(transform.rotation);
         transform.position = position;
+        //         Debug.Log(Input.GetAxis("Mouse Y"));
+        // Debug.Log(Input.GetAxis("Mouse X"));
+        // var euang = transform.eulerAngles;
+        // euang.x += Input.GetAxis("Mouse Y") * XSpeed * DeltaPosition;
+        // euang.y += Input.GetAxis("Mouse X") * YSpeed * DeltaPosition;
+        // transform.eulerAngles = euang;
+        // // transform.RotateAround(new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.0f, 1.0f, 0), Input.GetAxis("Mouse X") * XSpeed * DeltaPosition);
+        // // transform.RotateAround(new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.0f, 1.0f, 0), Input.GetAxis("Mouse Y") * YSpeed * DeltaPosition);
+
     }
 
     private void Translate()
     {
-        var rotation = Quaternion.Euler(yEulerAngles, xEulerAngles, 0);
+        var rotation = Quaternion.Euler(yEulerAngles, xEulerAngles, transform.eulerAngles.z);
         distance = Mathf.Clamp(distance - zoom * DeltaGetAxis, DistanceMin, DistanceMax);
 
         RaycastHit hit;
@@ -112,13 +121,16 @@ public class MouseOrbit : MonoBehaviour
         transform.position = position;
     }
 
-    public static float ClampAngle(float angle, float min, float max)
+    public static float ClampAngle(float angle, float YMinMaxMargin)
     {
         if (angle < -360F)
             angle += 360F;
-        if (angle > 360F)
+        if (angle > 360f)
             angle -= 360F;
-        return Mathf.Clamp(angle, min, max);
+        if(angle > -90f && angle < 90f) return Mathf.Clamp(angle, -90f + YMinMaxMargin, 90f - YMinMaxMargin);
+        if(angle > 90f && angle < 270f) return Mathf.Clamp(angle, 90f + YMinMaxMargin, 270f - YMinMaxMargin);
+        if(angle > -270f && angle < -90f) return Mathf.Clamp(angle, -270f + YMinMaxMargin, -90 - YMinMaxMargin);
+        return angle;
     }
 
     public static bool MouseIsInScreenField()

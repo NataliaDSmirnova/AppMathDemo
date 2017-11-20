@@ -19,11 +19,6 @@ public class AppleCalc : MonoBehaviour {
 	private float[] topHalfNB;
 	private int[] topHalfIB;
 
-	private float[] bottomHalfWireFrameVB;
-	private int[] bottomHalfWireFrameIB;
-	private float[] topHalfWireFrameVB;
-	private int[] topHalfWireFrameIB;
-
 	public Vector3[] vertices;
 	public Vector3[] normals;
 	public int[] trianglesSolid;
@@ -38,11 +33,6 @@ public class AppleCalc : MonoBehaviour {
 		initBottomHalfVB();
 		initBottomHalfNB();
 		initBottomHalfIB();
-
-		initTopHalfWireFrameVB();
-		initTopHalfWireFrameIB();
-		initBottomHalfWireFrameVB();
-		initBottomHalfWireFrameIB();
 
 		InitFun ();
 	}
@@ -374,34 +364,6 @@ public class AppleCalc : MonoBehaviour {
 		bottomHalfNB = normalCoords;
 	}
 
-	public void initTopHalfWireFrameVB()
-	{
-		int nSeg = nSegments / segmentRatio;
-		int nSect = nSections / sectionRatio;
-		float[] Coords = new float[3 * 2 * 2 * nSeg / 3 + 3];
-
-		float sinAlpha = (float)Mathf.Sin(2 * Mathf.PI / nSect);
-		float cosAlpha = (float)Mathf.Cos(2 * Mathf.PI / nSect);
-		float t, x, y;
-		for (int i = 0, j = 0, k = 3 * 2 * nSeg / 3; i <= 2 * nSeg / 3; i++, j += 3, k += 3)
-		{
-			t = (float)((float)(nSeg - i) / nSeg * Mathf.PI - Mathf.PI);
-			x = 2 * rApple * (float)Mathf.Sin(t) - rApple * (float)Mathf.Sin(2 * t);
-			y = 2 * rApple * (float)Mathf.Cos(t) - rApple * (float)Mathf.Cos(2 * t);
-
-			Coords[j] = x;
-			Coords[j + 1] = y;
-			Coords[j + 2] = 0;
-
-			if (i == 0)
-				continue;
-			Coords[k] = cosAlpha * x;
-			Coords[k + 1] = y;
-			Coords[k + 2] = -sinAlpha * x;
-		}
-		topHalfWireFrameVB = Coords;
-	}
-
 	public void initBottomHalfIB()
 	{
 		int[] trianglesOrder = new int[3 * (2 * nSegments / 3 - 1)];
@@ -419,62 +381,6 @@ public class AppleCalc : MonoBehaviour {
 			trianglesOrder[6 * i + 3 - 3] = (short)(i + nSegments / 3);
 		}
 		bottomHalfIB = trianglesOrder;
-	}
-
-	public void initTopHalfWireFrameIB()
-	{
-		int nSeg = nSegments / segmentRatio;
-		int[] lineOrder = new int[2 * 2 * nSeg / 3 * 2];
-		for (int i = 0, k = 1; i < 2 * nSeg / 3; i++, k++)
-		{
-			lineOrder[2 * i] = (short)(i);
-			lineOrder[2 * i + 1] = (short)(i + 1);
-			lineOrder[2 * 2 * nSeg / 3 + 2 * i] = (short)(k);
-			lineOrder[2 * 2 * nSeg / 3 + 2 * i + 1] = (short)(k + 2 * nSeg / 3);
-		}
-		topHalfWireFrameIB = lineOrder;
-	}
-
-	public void initBottomHalfWireFrameVB()
-	{
-		int nSeg = nSegments / segmentRatio;
-		int nSect = nSections / sectionRatio;
-		float[] Coords = new float[3 * 2 * nSeg / 3 + 3];
-
-		float sinAlpha = (float)Mathf.Sin(2 * Mathf.PI / nSect);
-		float cosAlpha = (float)Mathf.Cos(2 * Mathf.PI / nSect);
-		float t, x, y;
-		for (int i = 0, j = 0, k = 3 * nSeg / 3; i <= nSeg / 3; i++, j += 3, k += 3)
-		{
-			t = (float)((float)(i) / nSeg * Mathf.PI - Mathf.PI);
-			x = 2 * rApple * (float)Mathf.Sin(t) - rApple * (float)Mathf.Sin(2 * t);
-			y = 2 * rApple * (float)Mathf.Cos(t) - rApple * (float)Mathf.Cos(2 * t);
-
-			Coords[j] = x;
-			Coords[j + 1] = y;
-			Coords[j + 2] = 0;
-
-			if (i == 0)
-				continue;
-			Coords[k] = cosAlpha * x;
-			Coords[k + 1] = y;
-			Coords[k + 2] = -sinAlpha * x;
-		}
-		bottomHalfWireFrameVB = Coords;
-	}
-
-	public void initBottomHalfWireFrameIB()
-	{
-		int nSeg = nSegments / segmentRatio;
-		int[] lineOrder = new int[2 * nSeg / 3 * 2];
-		for (int i = 0, k = 1; i < nSeg / 3; i++, k++)
-		{
-			lineOrder[2 * i] = (short)(i);
-			lineOrder[2 * i + 1] = (short)(i + 1);
-			lineOrder[2 * nSeg / 3 + 2 * i] = (short)(k);
-			lineOrder[2 * nSeg / 3 + 2 * i + 1] = (short)(k + nSeg / 3);
-		} 
-		bottomHalfWireFrameIB = lineOrder;
 	}
 
 
