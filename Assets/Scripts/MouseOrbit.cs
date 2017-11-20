@@ -36,6 +36,7 @@ public class MouseOrbit : MonoBehaviour
 
     private int lastScreenWidth;
     private int lastScreenHeight;
+    static bool firstTime = true;
 
     private void Start()
     {
@@ -70,10 +71,16 @@ public class MouseOrbit : MonoBehaviour
 
     private void SphericalMovement()
     {
-        xEulerAngles -= Input.GetAxis("Mouse Y") * XSpeed * DeltaPosition;
-        yEulerAngles += Input.GetAxis("Mouse X") * YSpeed * DeltaPosition;
+        if(firstTime) {
+            firstTime = false;
+            return;
+        }
+        var xrot = Mathf.Clamp(Input.GetAxis("Mouse X"), -10, 10);
+        var yrot = Mathf.Clamp(Input.GetAxis("Mouse Y"), -10, 10);
+        xEulerAngles -= yrot * XSpeed * DeltaPosition;
+        yEulerAngles += xrot * YSpeed * DeltaPosition;
 
-        yEulerAngles = ClampAngle(yEulerAngles, YMinMaxMargin);
+        xEulerAngles = ClampAngle(xEulerAngles, YMinMaxMargin);
 
         var rotation = Quaternion.Euler(xEulerAngles, yEulerAngles, 0.0f);
 
