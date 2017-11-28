@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class LeafScript : MonoBehaviour {
 
+    public bool shrink = false;
+    public bool expand = false;
+
 	float time = 0f;
     private int nSections = 16; // количество долек
     private int nSegments = 8; // количество сегментов в линии
@@ -133,20 +136,24 @@ public class LeafScript : MonoBehaviour {
 		if(time < timeS) return;
         if(time > timeF) time = timeF;
 
-		float T = 1;
+		float T = (float)(time - timeS) / (timeF - timeS);
+		if(T > 1) T = 1;
 
-		float param1_0 = ((float)Mathf.Cos(T * Mathf.PI) + 1) / 2.0f;
-		float param0_1 = ((float)Mathf.Sin(T * Mathf.PI - Mathf.PI / 2.0f) + 1) / 2.0f;
+        float c = Mathf.Pow(0.001f, 1.0f / ((timeF - timeS) / Time.deltaTime));
+        if(shrink) {
+            transform.localScale = transform.localScale * c;
+            expand = false;
+        } else if(expand) transform.localScale = transform.localScale * c;
 
-        find_VB_and_NB(param0_1, param1_0);
+        find_VB_and_NB(1, 0);
 
 		Vector3[] VBAll = new Vector3[2 * VB.Length];
 		Vector3[] NBAll = new Vector3[2 * NB.Length];
 		int[] IBAll = new int[2 * solidIB.Length];
 
 		// rotation *= Quaternion.AngleAxis(100 * param1_0 *  param1_0 , Vector3.left);
-		for(int i = 0; i < VB.Length; ++i) VBAll[i] = rotation * new Vector3(length * (-0.8f - param0_1) + VB[i].x, 0.8f + VB[i].y, VB[i].z);
-		for(int i = 0; i < VB.Length; ++i) VBAll[i + VB.Length] = rotation * new Vector3(length * (-0.8f - param0_1) + VB[i].x, 0.8f -VB[i].y, VB[i].z);
+		for(int i = 0; i < VB.Length; ++i) VBAll[i] = rotation * new Vector3(length * (-0.8f - 1) + VB[i].x, 0.8f + VB[i].y, VB[i].z);
+		for(int i = 0; i < VB.Length; ++i) VBAll[i + VB.Length] = rotation * new Vector3(length * (-0.8f - 1) + VB[i].x, 0.8f -VB[i].y, VB[i].z);
 
 		for(int i = 0; i < NB.Length; ++i) NBAll[i] = rotation * new Vector3(NB[i].x, NB[i].y, NB[i].z);
 		for(int i = 0; i < NB.Length; ++i) NBAll[i + NB.Length] = rotation * new Vector3(NB[i].x, - NB[i].y, NB[i].z);
@@ -167,7 +174,7 @@ public class LeafScript : MonoBehaviour {
 		GL.PushMatrix();
 		GL.MultMatrix(transform.localToWorldMatrix);
 		GL.Begin(GL.LINES);
-			float linet = T * 1.3f;
+			float linet = 1.3f;
 			GL.Color(new Color(40f / 255, 180f / 255, 10f / 255, 1F));
 			Vector3 v1 = rotation * new Vector3((-0.5f) * length, 0.8f, 0);
 			GL.Vertex3(v1.x, v1.y, v1.z);

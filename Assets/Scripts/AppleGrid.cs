@@ -4,6 +4,8 @@ public class AppleGrid : MonoBehaviour
 {
     public float phi = 0.5f;
     public float theta = 0.25f;
+    public bool shrink = false;
+    public bool expand = false;
 
     private int nSections = 32; // ���������� �����
     private int nSegments = 32; // ���������� ��������� � �����
@@ -185,11 +187,13 @@ public class AppleGrid : MonoBehaviour
 		if(time < timeS) return;
         if(time > timeF) time = timeF;
 
-        float T = 1;
-        float param1_0 = ((float)Mathf.Cos(T * Mathf.PI) + 1) / 2.0f;
-        float param0_1 = ((float)Mathf.Sin(T * Mathf.PI - Mathf.PI / 2.0f) + 1) / 2.0f;
+        float c = Mathf.Pow(0.001f, 1.0f / ((timeF - timeS) / Time.deltaTime));
+        if(shrink) {
+            transform.localScale = transform.localScale * c;
+            expand = false;
+        } else if(expand) transform.localScale = transform.localScale * c;
 
-        FindVertexCoordsForApple(param0_1, param1_0);
+        FindVertexCoordsForApple(1, 0);
 
 
         //RotateXVec(ref VB, Mathf.PI / 2 * param1_0);
@@ -197,7 +201,7 @@ public class AppleGrid : MonoBehaviour
         for (int i = VB.Length - 1; i >= 0; --i)
         {
             VB[i].y -= VB[0].y;
-            VB[i].y += param0_1 * 2 * rApple;
+            VB[i].y += 2 * rApple;
         }
         RotateXVec(ref VB, Mathf.PI / 2);
         rotateAroundPoint(ref VB, new Vector3(0, 180, 0));
@@ -216,7 +220,7 @@ public class AppleGrid : MonoBehaviour
             rotateAroundPoint(ref VB, new Vector3(0, 0, 360.0f / nSections));
             VB.CopyTo(VBcopy, 0);
             //rotateAroundPoint(ref VBcopy, new Vector3(T * 90, 0, 0));
-            RotateXVec(ref VBcopy, T * Mathf.PI / 2);
+            RotateXVec(ref VBcopy, Mathf.PI / 2);
             //RotateZVec(ref VB, param0_1 * 2.0f * Mathf.PI / nSections);
             for (int i = 0; i < wireAppleIB.Length  / 2 * theta; i += 2)
             {

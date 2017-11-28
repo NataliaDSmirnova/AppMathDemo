@@ -4,6 +4,8 @@ public class AppleSolid : MonoBehaviour
 {
     public float phi = 0.5f;
     public float theta = 0.25f;
+    public bool shrink = false;
+    public bool expand = false;
 
     private int nSections = 32; // ���������� �����
     private int nSegments = 32; // ���������� ��������� � �����
@@ -242,7 +244,7 @@ public class AppleSolid : MonoBehaviour
         }
     }
 
-    public void OnRenderObject()
+    public void Update()
     {
         AppleScript appSc = transform.root.gameObject.GetComponent<AppleScript>();
         float dT = appSc.times[appSc.timeEnd[appSc.name]] - appSc.times[appSc.timeStart[appSc.name]];
@@ -257,11 +259,14 @@ public class AppleSolid : MonoBehaviour
 		if(time < timeS) return;
         if(time > timeF) time = timeF;
 
-		float T = (float)(time - timeS) / (timeF - timeS);
-		if(T > 1) T = 1;
-
 		FindVertexCoordsForApple(1.0f, 0.0f, 0.5f);
-	
+
+        float c = Mathf.Pow(0.001f, 1.0f / ((timeF - timeS) / Time.deltaTime));
+        if(shrink) {
+            transform.localScale = transform.localScale * c;
+            expand = false;
+        } else if(expand) transform.localScale = transform.localScale * c;
+
 		//RotateXVec(ref VB, Mathf.PI / 2 * param1_0);
 		//rotateAroundPoint(ref VB, new Vector3(90.0f * param1_0, 0, 0));
 		for (int i = VB.Length - 1; i >= 0; --i)
@@ -314,5 +319,6 @@ public class AppleSolid : MonoBehaviour
 		mesh.triangles = MeshIB;
 		mesh.normals = MeshNB;
 //		mesh.RecalculateNormals();
+
     }
 }

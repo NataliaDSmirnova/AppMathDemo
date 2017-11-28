@@ -244,6 +244,7 @@ public class AppleSolidNorm : MonoBehaviour
 
     public void OnRenderObject()
     {
+        GetComponent<MeshFilter>().mesh.Clear();
         AppleScript appSc = transform.root.gameObject.GetComponent<AppleScript>();
         float dT = appSc.times[appSc.timeEnd[appSc.name]] - appSc.times[appSc.timeStart[appSc.name]];
         float timeS = appSc.times[appSc.timeStart[appSc.name]] + appSc.times[appSc.timeStart[gameObject.name]] * dT;

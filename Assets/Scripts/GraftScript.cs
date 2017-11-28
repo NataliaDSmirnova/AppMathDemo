@@ -6,6 +6,7 @@ using UnityEngine;
 public class CurvedCone {
 
     private int nSections; // количество долек (должно быть кратно 2 * sectionRatio)
+
     private static int sectionRatio = 2; // количество долек в проволочной модели будет nSectionsions/sectionRatio
     private int nSegments; // количество сегментов в линии (должно быть кратно 3)
     private static int segmentRatio = 1; // количество сегментов в проволочной модели будет nSegmentsments/segmentRatio
@@ -124,6 +125,9 @@ public class CurvedCone {
 public class GraftScript : MonoBehaviour {
 	float time = 0.0f;
 
+    public bool shrink = false;
+    public bool expand = false;
+
     private int nSections = 32; // количество долек (должно быть кратно 2 * sectionRatio)
     private int nSegments = 16; // количество сегментов в линии (должно быть кратно 3)
 	float lenCurvedCone = 0.04f;
@@ -173,12 +177,13 @@ public class GraftScript : MonoBehaviour {
 		if(time < timeS) return;
         if(time > timeF) time = timeF;
 
-		float T = 1;
+        float c = Mathf.Pow(0.001f, 1.0f / ((timeF - timeS) / Time.deltaTime));
+        if(shrink) {
+            transform.localScale = transform.localScale * c;
+            expand = false;
+        } else if(expand) transform.localScale = transform.localScale * c;
 
-		float param1_0 = ((float)Mathf.Cos(T * Mathf.PI) + 1) / 2.0f;
-		float param0_1 = ((float)Mathf.Sin(T * Mathf.PI - Mathf.PI / 2.0f) + 1) / 2.0f;
-
-        find_VB_and_NB(param0_1, param1_0);
+        find_VB_and_NB(1, 0);
     
 	    // gl.glTranslatef(0.0f, param0_1*baseCone.getLen(), 0.0f);
         // curvedCone.drawSolid(gl);

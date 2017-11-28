@@ -2,6 +2,7 @@
 
 public class AppleGridAnim : MonoBehaviour
 {
+    public bool hidden = false;
     private int nSections = 32; // ���������� �����
     private int nSegments = 32; // ���������� ��������� � �����
     private float len = 0.92f; // ����� ����� � �����
@@ -284,6 +285,7 @@ public class AppleGridAnim : MonoBehaviour
             GL.End();
             GL.PopMatrix();
         }
+        if(hidden) transform.localScale = new Vector3(0.001f, 0.001f, 0.001f);
 
     }
 }
